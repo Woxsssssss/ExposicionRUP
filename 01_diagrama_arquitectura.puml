@@ -1,0 +1,52 @@
+@startuml
+
+title RPG Manager | Vista de despliegue\nCliente, servidor y MariaDB
+left to right direction
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam nodeBackgroundColor #EFF6FF
+skinparam nodeBorderColor #2563EB
+skinparam nodeFontColor #172554
+skinparam componentBackgroundColor #DBEAFE
+skinparam componentBorderColor #2563EB
+skinparam componentFontColor #172554
+skinparam databaseBackgroundColor #DBEAFE
+skinparam databaseBorderColor #1D4ED8
+skinparam ArrowColor #1D4ED8
+
+node "CLIENTE" as Cliente {
+  artifact "Navegador\nJugador / Game Master" as Navegador
+}
+
+node "SERVIDOR RPG MANAGER" as Servidor {
+  component "API" as API
+  component "MisionService" as MS
+  component "ProgresoService" as PS
+  interface "MisionRepository" as IRepo
+  component "MariaDBMisionRepository" as Impl
+}
+
+database "MariaDB\nMisiones y progreso" as DB
+
+Navegador --> API : HTTPS
+API --> MS : completar misión
+API --> PS : consultar progreso
+MS --> IRepo : persistencia
+PS --> IRepo : persistencia
+Impl ..|> IRepo
+Impl --> DB : SQL
+
+note bottom of Servidor
+  Decisión 1: arquitectura en capas
+  (no mezclar vista y lógica).
+  Decisión 2: patrón Repository
+  (no colocar SQL en el servicio).
+end note
+note bottom of DB
+  Riesgo: doble recompensa por reintentos.
+  Mitigación: validación + transacción.
+end note
+@enduml
