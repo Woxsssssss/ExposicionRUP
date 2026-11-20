@@ -1,0 +1,19 @@
+@startuml
+title Vista de Despliegue - RPG Manager (Módulo Misiones)
+
+node "Nodo Cliente\n<<Dispositivo Jugador>>" {
+  artifact "Cliente Web / UI\n(VistaMisiones)" as client
+}
+
+node "Nodo Servidor de Aplicaciones\n<<Servidor Backend>>" {
+  component "API Misiones & Progresión\n(MisionService + MisionRepository)" as server
+}
+
+node "Nodo Base de Datos\n<<Servidor DB>>" {
+  database "MariaDB 10.x\n(rpg_manager_db)" as db
+}
+
+client -- server : HTTPS / JSON (Puerto 443)
+server -- db : TCP / JDBC (Puerto 3306)
+
+@enduml
