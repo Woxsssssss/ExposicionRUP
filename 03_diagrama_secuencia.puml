@@ -1,0 +1,73 @@
+@startuml
+title Diagrama de Secuencia - Completar Misión y Subir de Nivel (E4)
+
+actor Jugador
+participant ":VistaMisiones" as Vista
+participant ":MisionService" as Service
+participant "mision:Mision" as Mision
+participant "recompensa:Recompensa" as Recompensa
+participant "personaje:Personaje" as Personaje
+participant ":MisionRepository" as Repo
+
+Jugador -> Vista : clickCompletarMision(idPersonaje, idMision)
+activate Vista
+
+Vista -> Service : completarMision(idPersonaje, idMision)
+activate Service
+
+Service -> Repo : buscarPorId(idMision)
+activate Repo
+Repo --> Service : mision
+deactivate Repo
+
+Service -> Mision : validarCompletitud()
+activate Mision
+Mision --> Service : true
+deactivate Mision
+
+Service -> Mision : marcarCompletada()
+activate Mision
+deactivate Mision
+
+Service -> Mision : getRecompensa()
+activate Mision
+Mision --> Service : recompensa
+deactivate Mision
+
+Service -> Recompensa : getExperiencia()
+activate Recompensa
+Recompensa --> Service : xp
+deactivate Recompensa
+
+Service -> Recompensa : getOro()
+activate Recompensa
+Recompensa --> Service : oro
+deactivate Recompensa
+
+Service -> Personaje : agregarOro(oro)
+activate Personaje
+deactivate Personaje
+
+Service -> Personaje : ganarExperiencia(xp)
+activate Personaje
+
+alt experienciaActual >= experienciaSiguienteNivel
+    Personaje -> Personaje : subirNivel()
+    Personaje --> Service : true (subió de nivel)
+else experienciaActual < experienciaSiguienteNivel
+    Personaje --> Service : false (mismo nivel)
+end
+deactivate Personaje
+
+Service -> Repo : actualizarEstado(mision, personaje)
+activate Repo
+Repo --> Service : true
+deactivate Repo
+
+Service --> Vista : "Misión completada con éxito"
+deactivate Service
+
+Vista --> Jugador : mostrarResumenRecompensa()
+deactivate Vista
+
+@enduml
