@@ -1,0 +1,65 @@
+@startuml
+title Diagrama de Clases de Diseño - Módulo Misiones y Progresión (E4)
+skinparam classAttributeIconSize 0
+
+interface IMisionRepository {
+  + buscarPorId(idMision: int): Mision
+  + actualizarEstado(mision: Mision, personaje: Personaje): boolean
+}
+
+class MisionRepository {
+  - conexionDB: String
+  + buscarPorId(idMision: int): Mision
+  + actualizarEstado(mision: Mision, personaje: Personaje): boolean
+}
+
+class MisionService {
+  - misionRepository: IMisionRepository
+  + MisionService(repo: IMisionRepository)
+  + completarMision(idPersonaje: int, idMision: int): String
+  + obtenerMisionesActivas(idPersonaje: int): List<Mision>
+}
+
+class Mision {
+  - idMision: int
+  - titulo: String
+  - descripcion: String
+  - estado: String
+  - nivelRequerido: int
+  - recompensa: Recompensa
+  + validarCompletitud(): boolean
+  + marcarCompletada(): void
+  + getRecompensa(): Recompensa
+}
+
+class Recompensa {
+  - idRecompensa: int
+  - experienciaOtorgada: int
+  - oroOtorgado: int
+  - itemBonus: String
+  + getExperiencia(): int
+  + getOro(): int
+}
+
+class Personaje {
+  - idPersonaje: int
+  - nombre: String
+  - clase: String
+  - nivel: int
+  - experienciaActual: int
+  - experienciaSiguienteNivel: int
+  - oro: int
+  + ganarExperiencia(xp: int): boolean
+  + subirNivel(): void
+  + agregarOro(cantidad: int): void
+}
+
+' Relaciones
+MisionRepository ..|> IMisionRepository : implementa
+MisionService --> IMisionRepository : utiliza
+MisionService ..> Mision : procesa
+MisionService ..> Personaje : actualiza
+Mision "1" *-- "1" Recompensa : contiene
+Personaje "1" o-- "0..*" Mision : tiene asignadas
+
+@enduml
