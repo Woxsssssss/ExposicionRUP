@@ -1,0 +1,34 @@
+@startuml
+title Vista Lógica - Arquitectura en Capas (Misiones y Progresión)
+
+package "Capa de Presentación" {
+  [VistaMisiones]
+}
+
+package "Capa de Lógica de Negocio" {
+  [MisionService]
+  package "Modelo de Dominio" {
+    [Mision]
+    [Recompensa]
+    [Personaje]
+  }
+}
+
+package "Capa de Persistencia" {
+  interface IMisionRepository
+  [MisionRepository]
+}
+
+database "MariaDB" {
+  [Tablas Misiones / Personajes]
+}
+
+[VistaMisiones] --> [MisionService] : consume
+[MisionService] --> [Mision] : gestiona
+[MisionService] --> [Personaje] : actualiza progreso
+[Mision] *-- [Recompensa] : otorga
+[MisionService] --> IMisionRepository : usa interfaz
+[MisionRepository] .up.|> IMisionRepository : implementa
+[MisionRepository] --> [Tablas Misiones / Personajes] : SQL / JDBC
+
+@enduml
