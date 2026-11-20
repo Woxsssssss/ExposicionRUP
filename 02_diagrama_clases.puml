@@ -1,0 +1,70 @@
+
+@startuml
+skinparam backgroundColor #F5F8FF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam ArrowColor #2563EB
+
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #A9C8FF
+  FontColor #17315C
+}
+
+hide circle
+
+class Mision {
+  - id: int
+  - titulo: String
+  - estado: EstadoMision
+  __
+  + estaCompletada(): bool
+}
+
+class MisionService {
+  - repo: MisionRepository
+  __
+  + completarMision(...): Resultado
+  + aplicarRecompensa(...): void
+}
+
+class MisionRepository <<interface>> {
+  + obtenerPorId(id): Mision
+  __
+  + guardarProgreso(...): void
+  + marcarCompletada(...): void
+}
+
+class Personaje {
+  - nivel: int
+  - experiencia: int
+  __
+  + ganarExperiencia(exp): void
+  + subirNivel(): void
+}
+
+class Recompensa {
+  - experiencia: int
+  - oro: int
+  __
+  + aplicarA(p): void
+}
+
+class ProgresoMision {
+  - completada: bool
+  - fecha: Date
+  __
+  + registrar(): void
+}
+
+' Relaciones según la imagen
+Mision -right- MisionService
+MisionService -right- MisionRepository
+
+Mision -down- Personaje
+MisionService -down- Recompensa
+MisionRepository -down- ProgresoMision
+
+@enduml
