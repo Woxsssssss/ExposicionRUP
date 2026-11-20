@@ -1,73 +1,42 @@
+
 @startuml
-title Diagrama de Secuencia - Completar Misión y Subir de Nivel (E4)
 
-actor Jugador
-participant ":VistaMisiones" as Vista
-participant ":MisionService" as Service
-participant "mision:Mision" as Mision
-participant "recompensa:Recompensa" as Recompensa
-participant "personaje:Personaje" as Personaje
-participant ":MisionRepository" as Repo
+skinparam backgroundColor #F5F8FF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam sequenceArrowColor #2563EB
+skinparam sequenceLifeLineBorderColor #C8DBFC
+skinparam sequenceParticipantBackgroundColor #DFEAFE
+skinparam sequenceParticipantBorderColor #DFEAFE
+skinparam sequenceParticipantFontColor #183154
+skinparam sequenceParticipantFontStyle bold
+skinparam sequenceGroupBackgroundColor #EFF5FF
+skinparam sequenceGroupBorderColor #9EC4FF
 
-Jugador -> Vista : clickCompletarMision(idPersonaje, idMision)
-activate Vista
+hide footbox
 
-Vista -> Service : completarMision(idPersonaje, idMision)
-activate Service
+participant Jugador
+participant VistaMisiones
+participant MisionService #2563EB
+participant Personaje
+participant MisionRepository #2563EB
 
-Service -> Repo : buscarPorId(idMision)
-activate Repo
-Repo --> Service : mision
-deactivate Repo
+Jugador -> VistaMisiones: selecciona completar
+VistaMisiones -> MisionService: completarMision(...)
 
-Service -> Mision : validarCompletitud()
-activate Mision
-Mision --> Service : true
-deactivate Mision
+MisionService -> MisionRepository: obtenerPorId(id)
+MisionRepository -> MisionService: misión
 
-Service -> Mision : marcarCompletada()
-activate Mision
-deactivate Mision
+MisionService -> Personaje: ganarExperiencia(exp)
 
-Service -> Mision : getRecompensa()
-activate Mision
-Mision --> Service : recompensa
-deactivate Mision
-
-Service -> Recompensa : getExperiencia()
-activate Recompensa
-Recompensa --> Service : xp
-deactivate Recompensa
-
-Service -> Recompensa : getOro()
-activate Recompensa
-Recompensa --> Service : oro
-deactivate Recompensa
-
-Service -> Personaje : agregarOro(oro)
-activate Personaje
-deactivate Personaje
-
-Service -> Personaje : ganarExperiencia(xp)
-activate Personaje
-
-alt experienciaActual >= experienciaSiguienteNivel
-    Personaje -> Personaje : subirNivel()
-    Personaje --> Service : true (subió de nivel)
-else experienciaActual < experienciaSiguienteNivel
-    Personaje --> Service : false (mismo nivel)
+alt exp. suficiente
+    MisionService -> Personaje: subirNivel()
 end
-deactivate Personaje
 
-Service -> Repo : actualizarEstado(mision, personaje)
-activate Repo
-Repo --> Service : true
-deactivate Repo
+MisionService -> MisionRepository: guardarProgreso(...)
+MisionService -> MisionRepository: marcarCompletada(...)
 
-Service --> Vista : "Misión completada con éxito"
-deactivate Service
-
-Vista --> Jugador : mostrarResumenRecompensa()
-deactivate Vista
+MisionService -> VistaMisiones: resultado
+VistaMisiones -> Jugador: confirmación
 
 @enduml
